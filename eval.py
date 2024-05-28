@@ -11,7 +11,8 @@ from metrics import (
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default='internlm2')
+    # parser.add_argument('--model', type=str, default='internlm2')
+    parser.add_argument('--model', type=str, default='glm-4')
     return parser.parse_args(args)
 
 
@@ -36,7 +37,7 @@ def scorer(dataset, predictions, answers, all_classes):
 
 
 if __name__ == '__main__':
-    os.chdir('/CV/xhr_project/llm/Learning/tiny_compass')
+    # os.chdir('/CV/xhr_project/llm/Learning/tiny_compass')
     scores = dict()
     args = parse_args()
     path = f"pred/{args.model}/"
@@ -47,7 +48,7 @@ if __name__ == '__main__':
             continue
         predictions, answers, lengths = [], [], []
         dataset = file.split('.')[0]
-        with open(f'{path}{file}', 'r', ) as f:
+        with open(f'{path}{file}', 'r', encoding='utf-8') as f:
             for line in f:
                 data = json.loads(line)  # str转为dict
                 predictions.append(data["pred"])

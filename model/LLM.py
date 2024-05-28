@@ -1,4 +1,6 @@
 import json
+import os
+
 import torch
 from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForCausalLM
@@ -69,6 +71,39 @@ class internlm2Chat(BaseLLM):
             pred = tokenizer.decode(output[context_length:], skip_special_tokens=True)
             pred = self.post_process(pred)
 
+            with open(out_path, "a", encoding="utf-8") as f:
+                json.dump({"pred": pred, "answers": json_obj["answers"], "all_classes": json_obj["all_classes"],
+                           "length": json_obj["length"]}, f, ensure_ascii=False)
+                f.write('\n')
+
+
+class ZhipuChat(BaseLLM):
+    def __init__(self, path: str = '', model_name: str = "glm-4") -> None:
+        super().__init__(path, model_name)
+        from zhipuai import ZhipuAI
+        self.client = ZhipuAI(api_key=os.getenv("ZHIPUAI_API_KEY"))
+
+    def get_pred(self, data, max_length, max_gen, prompt_format, device, out_path):
+        for json_obj in tqdm(data):
+            prompt = prompt_format.format(**json_obj)
+            # 在中间截断,因为两头有关键信息.
+            # 这里不方便用tokenize之后的长度，直接用字符串长度
+            if len(prompt) > max_length:
+                half = int(max_length / 2)
+                prompt = prompt[:half] + prompt[-half:]
+            # zhipu api的输入审核比较敏感，通过try except处理模型没有返回的情况
+            try:
+                # temperature不能等于0或者1，否则会报错
+                response = self.client.chat.completions.create(
+                    model=self.model_name,
+                    messages=[{'role': 'user', 'content': prompt}],
+                    max_tokens=max_gen,
+                    temperature=0.99,
+                )
+                pred = response.choices[0].message.content
+            except Exception as e:
+                print(e)
+                pred = ""
             with open(out_path, "a", encoding="utf-8") as f:
                 json.dump({"pred": pred, "answers": json_obj["answers"], "all_classes": json_obj["all_classes"],
                            "length": json_obj["length"]}, f, ensure_ascii=False)

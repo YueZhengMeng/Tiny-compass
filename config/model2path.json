@@ -1,3 +1,4 @@
 {
-    "internlm2": "./model/internlm2-chat-7b/Shanghai_AI_Laboratory/internlm2-chat-7b"
+    "internlm2": "./model/internlm2-chat-7b/Shanghai_AI_Laboratory/internlm2-chat-7b",
+    "glm-4" : ""
 }

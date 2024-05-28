@@ -5,7 +5,7 @@ import random
 import numpy as np
 import torch
 from datasets import load_dataset
-from model.LLM import internlm2Chat
+from model.LLM import internlm2Chat, ZhipuChat
 
 
 def seed_everything(seed):
@@ -20,17 +20,18 @@ def seed_everything(seed):
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default='internlm2')
+    # parser.add_argument('--model', type=str, default='internlm2')
+    parser.add_argument('--model', type=str, default='glm-4')
     return parser.parse_args(args)
 
 
 if __name__ == '__main__':
-    os.chdir('your_root_path')
+    # os.chdir('your_root_path')
     seed_everything(42)
     args = parse_args()
 
-    model2path = json.load(open("config/model2path.json", "r"))
-    model2maxlen = json.load(open("config/model2maxlen.json", "r"))
+    model2path = json.load(open("config/model2path.json", "r", encoding="utf-8"))
+    model2maxlen = json.load(open("config/model2maxlen.json", "r", encoding="utf-8"))
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model_name = args.model
     # define your model
@@ -39,9 +40,11 @@ if __name__ == '__main__':
     # datasets = ["multi_news", "multifieldqa_zh", "trec"]
     datasets = ["multifieldqa_zh"]
 
-    dataset2prompt = json.load(open("config/dataset2prompt.json", "r"))
-    dataset2maxlen = json.load(open("config/dataset2maxlen.json", "r"))
-    pred_model = internlm2Chat(model2path[model_name], model_name)
+    dataset2prompt = json.load(open("config/dataset2prompt.json", "r", encoding="utf-8"))
+    dataset2maxlen = json.load(open("config/dataset2maxlen.json", "r", encoding="utf-8"))
+    # pred_model = internlm2Chat(model2path[model_name], model_name)
+    os.environ['ZHIPUAI_API_KEY'] = "*"
+    pred_model = ZhipuChat(model2path[model_name], model_name)
     # predict on each dataset
     if not os.path.exists("pred"):
         os.makedirs("pred")

@@ -1,3 +1,4 @@
 {
-    "internlm2": 2048
+    "internlm2": 2048,
+    "glm-4" : 2048
 }
