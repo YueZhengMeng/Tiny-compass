@@ -1,13 +1,12 @@
-import os
-from datasets import load_dataset
-from transformers import AutoTokenizer, LlamaTokenizer, LlamaForCausalLM, AutoModelForCausalLM
-import torch
-import json
-from tqdm import tqdm
-import numpy as np
-import random
 import argparse
+import json
+import os
+import random
+import numpy as np
+import torch
+from datasets import load_dataset
 from model.LLM import internlm2Chat
+
 
 def seed_everything(seed):
     torch.manual_seed(seed)
@@ -23,6 +22,7 @@ def parse_args(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='internlm2')
     return parser.parse_args(args)
+
 
 if __name__ == '__main__':
     os.chdir('your_root_path')
@@ -47,7 +47,7 @@ if __name__ == '__main__':
         os.makedirs("pred")
 
     for dataset in datasets:
-        data = load_dataset('json', data_files=f'./dataset/{dataset}.jsonl',split='train')
+        data = load_dataset('json', data_files=f'./dataset/{dataset}.jsonl', split='train')
         if not os.path.exists(f"pred/{model_name}"):
             os.makedirs(f"pred/{model_name}")
         out_path = f"pred/{model_name}/{dataset}.jsonl"
@@ -57,5 +57,4 @@ if __name__ == '__main__':
         max_gen = dataset2maxlen[dataset]
         data_all = [data_sample for data_sample in data]
 
-        pred_model.get_pred(data, max_length, max_gen, prompt_format, device, out_path)   
-
+        pred_model.get_pred(data, max_length, max_gen, prompt_format, device, out_path)

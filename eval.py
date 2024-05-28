@@ -1,26 +1,26 @@
-import os
-import json
 import argparse
-import numpy as np
-
+import json
+import os
 
 from metrics import (
-    qa_f1_score,
     qa_f1_zh_score,
     rouge_score,
     classification_score
 )
+
 
 def parse_args(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='internlm2')
     return parser.parse_args(args)
 
+
 dataset2metric = {
     'multifieldqa_zh': qa_f1_zh_score,
     'multi_news': rouge_score,
     'trec': classification_score
 }
+
 
 # 计算得分
 def scorer(dataset, predictions, answers, all_classes):
@@ -33,6 +33,7 @@ def scorer(dataset, predictions, answers, all_classes):
             score = max(score, dataset2metric[dataset](prediction, ground_truth, all_classes=all_classes))
         total_score += score
     return round(100 * total_score / len(predictions), 2)
+
 
 if __name__ == '__main__':
     os.chdir('/CV/xhr_project/llm/Learning/tiny_compass')
@@ -54,7 +55,7 @@ if __name__ == '__main__':
                 all_classes = data["all_classes"]
                 if "length" in data:
                     lengths.append(data["length"])
-            
+
             score = scorer(dataset, predictions, answers, all_classes)
         scores[dataset] = score
 
